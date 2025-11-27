@@ -12,7 +12,8 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #f4f4f9;
+            /* Sea Foam Pink Background */
+            background-color: #fce4ec; 
             margin: 0;
             text-align: center;
         }
@@ -31,10 +32,12 @@
         .verb-display {
             font-size: 2.5em;
             font-weight: bold;
-            color: #007bff;
+            /* Main Pink Color */
+            color: #e91e63;
             cursor: pointer;
             padding: 10px 20px;
-            border: 2px solid #007bff;
+            /* Pink Border */
+            border: 2px solid #e91e63;
             border-radius: 8px;
             display: inline-block;
             margin-bottom: 10px;
@@ -56,19 +59,21 @@
         .past-tense-reveal {
             font-size: 2em;
             font-weight: bold;
-            color: #28a745;
+            /* Green Accent (for correct answer) */
+            color: #4caf50; 
             cursor: pointer;
             padding: 5px 10px;
             display: inline-block;
             margin-top: 15px;
-            border-bottom: 3px dashed #28a745;
+            border-bottom: 3px dashed #4caf50;
             user-select: none;
         }
         .past-tense-reveal:active {
             opacity: 0.8;
         }
         .button-group button {
-            background-color: #6c757d;
+            /* Button Color */
+            background-color: #f48fb1; 
             color: white;
             border: none;
             padding: 12px 25px;
@@ -79,7 +84,7 @@
             transition: background-color 0.2s;
         }
         .button-group button:hover {
-            background-color: #5a6268;
+            background-color: #e91e63;
         }
         .score-box {
             margin-top: 20px;
@@ -90,7 +95,7 @@
             margin-top: 20px;
             text-align: left;
             padding: 15px;
-            background-color: #e9ecef;
+            background-color: #f8bbd0; /* Lighter pink for summary box */
             border-radius: 8px;
         }
         .summary-item {
@@ -100,14 +105,39 @@
         .hidden {
             display: none;
         }
+        /* Style for Instructions screen */
+        #instructions-view {
+            text-align: left;
+        }
+        #instructions-view ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+        #instructions-view h3 {
+            color: #e91e63;
+        }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <h2 id="round-header">Round 1: Word 1 / 10</h2>
-    
-    <div id="current-word-view">
+    <div id="instructions-view">
+        <h2 style="color: #e91e63;">How to Play: Regular Verbs</h2>
+        <p>This game tests your intuition for the correct pronunciation of the simple past tense ($\text{-ed}$) sound in English.</p>
+        <p style="font-weight: bold;">**10 rounds of 10 words each.**</p>
+        <ul>
+            <li>**Step 1:** The **BASE VERB** is displayed (e.g., WANT). Click the word to hear its pronunciation.</li>
+            <li>**Step 2:** Think about how the past tense (**WANTED**) is pronounced.</li>
+            <li>**Step 3:** Click **"Reveal Past Tense"**. The correct past tense is shown and read aloud.</li>
+            <li>**Step 4:** Answer **Yes**, **No**, or **Not Sure** to score points ($\text{1.0}$, $\text{0.0}$, or $\text{0.5}$).</li>
+            <li>**End of Round:** See your score ($\text{🪙}$ coins) and sample sentences for all 10 words.</li>
+        </ul>
+        <button onclick="startGame()" style="background-color: #e91e63;">Start Game</button>
+    </div>
+
+    <div id="current-word-view" class="hidden">
+        <h2 id="round-header">Round 1: Word 1 / 10</h2>
+        
         <div id="translation">[Japanese Definition]</div>
         <div id="base-verb-display" class="verb-display" onclick="speakText(currentWord.base_verb)">BASE VERB</div>
         <div id="question-text">Click the verb to hear it. What is its past tense?</div>
@@ -131,7 +161,7 @@
         </div>
         <h4>Sample Sentences:</h4>
         <div id="round-summary"></div>
-        <button onclick="startNextRound()" style="background-color: #007bff;">Start Next Round</button>
+        <button onclick="startNextRound()" style="background-color: #e91e63;">Start Next Round</button>
     </div>
 
     <div class="score-box">
@@ -145,7 +175,7 @@
 // =======================================================================
 
 const GAME_DATA = [
-    {
+  {
     "round_number": 1,
     "words": [
       {
@@ -983,7 +1013,8 @@ let roundScore = 0;
 let currentWord = {};
 
 const synth = window.speechSynthesis;
-const voice = synth.getVoices().find(v => v.lang.startsWith('en-') && v.name.includes('Google')); // Tries to get a good English voice
+// NEW: Search specifically for an American English voice ('en-US')
+let voice = null; 
 
 // Utility function for dynamic Text-to-Speech
 function speakText(text) {
@@ -991,11 +1022,31 @@ function speakText(text) {
         synth.cancel();
     }
     const utterThis = new SpeechSynthesisUtterance(text);
+    
+    // Use preferred voice if available
     if (voice) {
-        utterThis.voice = voice; // Use preferred voice if found
+        utterThis.voice = voice;
     }
-    utterThis.rate = 0.9; // Slightly slower speech for clarity
+    
+    // Set language to US English if no specific voice is found
+    utterThis.lang = 'en-US'; 
+    utterThis.rate = 0.9; 
     synth.speak(utterThis);
+}
+
+// NEW: Function to find the American English voice
+function findAmericanVoice() {
+    const voices = synth.getVoices();
+    // Prioritize a Google US English voice if available, otherwise just any US voice.
+    voice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+            voices.find(v => v.lang === 'en-US');
+}
+
+// NEW: Function to hide instructions and start the game
+function startGame() {
+    document.getElementById('instructions-view').classList.add('hidden');
+    document.getElementById('current-word-view').classList.remove('hidden');
+    loadWord();
 }
 
 // Function to reset display and load the next word
@@ -1007,7 +1058,7 @@ function loadWord() {
     }
 
     currentWord = roundData.words[currentWordIndex];
-    roundScore = 0; // Reset for the start of the round
+    // NOTE: roundScore is intentionally NOT reset here. It's reset when the new round starts.
 
     // Update headers and displays
     document.getElementById('round-header').textContent = `Round ${roundData.round_number}: Word ${currentWordIndex + 1} / 10`;
@@ -1065,7 +1116,7 @@ function submitFeedback(points) {
     // Disable buttons temporarily
     document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = true);
 
-    // Wait 1 second before loading the next word
+    // Wait 1.5 seconds before loading the next word
     setTimeout(() => {
         document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = false);
         currentWordIndex++;
@@ -1104,27 +1155,27 @@ function startNextRound() {
     currentRoundIndex++;
     if (currentRoundIndex >= GAME_DATA.length) {
         alert(`GAME OVER! You finished all ${GAME_DATA.length} rounds! Final Score: ${totalScore} 🥇`);
-        // Optional: Reset game or show final screen
+        // Optional: Implement a final score screen or reset here.
         return;
     }
 
     currentWordIndex = 0;
+    roundScore = 0; // Reset score for the new round
     document.getElementById('round-summary-view').classList.add('hidden');
     document.getElementById('current-word-view').classList.remove('hidden');
     
-    // Ensure scores are reset for the new round
-    roundScore = 0; 
     loadWord();
 }
 
-// Start the game when the page loads
+// Start the game by loading the instructions screen first
 window.onload = function() {
-    // Ensure voices are loaded before starting
+    // 1. Load voices when the page loads
     if (synth.getVoices().length === 0) {
-        synth.onvoiceschanged = loadWord;
+        synth.onvoiceschanged = findAmericanVoice;
     } else {
-        loadWord();
+        findAmericanVoice();
     }
+    // 2. Show the instruction screen. The game logic starts when the user clicks "Start Game".
 };
 
 </script>
