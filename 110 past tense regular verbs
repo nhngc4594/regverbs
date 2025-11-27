@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regular Verb Pronunciation Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+            text-align: center;
+        }
+        #game-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .verb-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #007bff;
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+        .verb-display:active {
+            transform: scale(0.98);
+        }
+        #translation {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        #question-text {
+            font-size: 1.1em;
+            color: #777;
+            margin-bottom: 25px;
+        }
+        .past-tense-reveal {
+            font-size: 2em;
+            font-weight: bold;
+            color: #28a745;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-top: 15px;
+            border-bottom: 3px dashed #28a745;
+            user-select: none;
+        }
+        .past-tense-reveal:active {
+            opacity: 0.8;
+        }
+        .button-group button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .button-group button:hover {
+            background-color: #5a6268;
+        }
+        .score-box {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        #round-summary {
+            margin-top: 20px;
+            text-align: left;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        .summary-item {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h2 id="round-header">Round 1: Word 1 / 10</h2>
+    
+    <div id="current-word-view">
+        <div id="translation">[Japanese Definition]</div>
+        <div id="base-verb-display" class="verb-display" onclick="speakText(currentWord.base_verb)">BASE VERB</div>
+        <div id="question-text">Click the verb to hear it. What is its past tense?</div>
+        
+        <button id="reveal-button" onclick="revealPastTense()">Reveal Past Tense</button>
+        <div id="past-tense-container" class="hidden">
+            <div id="past-tense-display" class="past-tense-reveal" onclick="speakText(currentWord.past_tense)"></div>
+            <p style="margin-top: 20px; color: #333;">Is this what you thought?</p>
+            <div id="feedback-buttons" class="button-group">
+                <button onclick="submitFeedback(1)">Yes <span id="reward-visual"></span></button>
+                <button onclick="submitFeedback(0.5)">Not Sure</button>
+                <button onclick="submitFeedback(0)">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="round-summary-view" class="hidden">
+        <h3>Round <span id="summary-round-number"></span> Complete!</h3>
+        <div class="score-box">
+            Round Score: <span id="round-score-display">0</span> <span style="font-size: 1.5em;">🪙</span>
+        </div>
+        <h4>Sample Sentences:</h4>
+        <div id="round-summary"></div>
+        <button onclick="startNextRound()" style="background-color: #007bff;">Start Next Round</button>
+    </div>
+
+    <div class="score-box">
+        Total Score: <span id="total-score-display">0</span> <span style="font-size: 1.5em;">🥇</span>
+    </div>
+</div>
+
+<script>
+// =======================================================================
+// PART 1: GAME DATA (The 110 Verbs)
+// =======================================================================
+
+const GAME_DATA = [
+    {
+    "round_number": 1,
+    "words": [
+      {
+        "base_verb": "WANT",
+        "past_tense": "wanted",
+        "category": "ID",
+        "japanese_def": "[~したい]",
+        "sample_sentence": "She wanted a new book for her birthday."
+      },
+      {
+        "base_verb": "LOOK",
+        "past_tense": "looked",
+        "category": "T",
+        "japanese_def": "[見る]",
+        "sample_sentence": "He looked out the window at the rain."
+      },
+      {
+        "base_verb": "USE",
+        "past_tense": "used",
+        "category": "D",
+        "japanese_def": "[使う]",
+        "sample_sentence": "They used all the sugar in the cake."
+      },
+      {
+        "base_verb": "WORK",
+        "past_tense": "worked",
+        "category": "T",
+        "japanese_def": "[働く]",
+        "sample_sentence": "I worked late last night to finish the report."
+      },
+      {
+        "base_verb": "CALL",
+        "past_tense": "called",
+        "category": "D",
+        "japanese_def": "[呼ぶ]",
+        "sample_sentence": "We called the technician to fix the computer."
+      },
+      {
+        "base_verb": "TRY",
+        "past_tense": "tried",
+        "category": "D",
+        "japanese_def": "[試す]",
+        "sample_sentence": "She tried to solve the puzzle, but couldn't."
+      },
+      {
+        "base_verb": "ASK",
+        "past_tense": "asked",
+        "category": "T",
+        "japanese_def": "[尋ねる]",
+        "sample_sentence": "He asked me a difficult question."
+      },
+      {
+        "base_verb": "NEED",
+        "past_tense": "needed",
+        "category": "ID",
+        "japanese_def": "[必要とする]",
+        "sample_sentence": "They needed more time to finish the project."
+      },
+      {
+        "base_verb": "SEEM",
+        "past_tense": "seemed",
+        "category": "D",
+        "japanese_def": "[〜のように見える]",
+        "sample_sentence": "It seemed like a good idea at the time."
+      },
+      {
+        "base_verb": "HELP",
+        "past_tense": "helped",
+        "category": "T",
+        "japanese_def": "[助ける]",
+        "sample_sentence": "I helped my neighbor carry groceries."
+      }
+    ]
+  },
+  {
+    "round_number": 2,
+    "words": [
+      {
+        "base_verb": "TALK",
+        "past_tense": "talked",
+        "category": "T",
+        "japanese_def": "[話す]",
+        "sample_sentence": "We talked for hours about the movie."
+      },
+      {
+        "base_verb": "TURN",
+        "past_tense": "turned",
+        "category": "D",
+        "japanese_def": "[曲がる]",
+        "sample_sentence": "The car turned the corner quickly."
+      },
+      {
+        "base_verb": "START",
+        "past_tense": "started",
+        "category": "ID",
+        "japanese_def": "[始める]",
+        "sample_sentence": "The concert started exactly at eight o'clock."
+      },
+      {
+        "base_verb": "PLAY",
+        "past_tense": "played",
+        "category": "D",
+        "japanese_def": "[遊ぶ]",
+        "sample_sentence": "They played soccer until sunset."
+      },
+      {
+        "base_verb": "MOVE",
+        "past_tense": "moved",
+        "category": "D",
+        "japanese_def": "[動く]",
+        "sample_sentence": "He moved the chair closer to the table."
+      },
+      {
+        "base_verb": "LIKE",
+        "past_tense": "liked",
+        "category": "T",
+        "japanese_def": "[好む]",
+        "sample_sentence": "I liked the new restaurant very much."
+      },
+      {
+        "base_verb": "LIVE",
+        "past_tense": "lived",
+        "category": "D",
+        "japanese_def": "[住む]",
+        "sample_sentence": "She lived in Paris for five years."
+      },
+      {
+        "base_verb": "BELIEVE",
+        "past_tense": "believed",
+        "category": "D",
+        "japanese_def": "[信じる]",
+        "sample_sentence": "They believed the story immediately."
+      },
+      {
+        "base_verb": "HAPPEN",
+        "past_tense": "happened",
+        "category": "D",
+        "japanese_def": "[起こる]",
+        "sample_sentence": "The accident happened quickly."
+      },
+      {
+        "base_verb": "PROVIDE",
+        "past_tense": "provided",
+        "category": "ID",
+        "japanese_def": "[提供する]",
+        "sample_sentence": "The hotel provided towels for all guests."
+      }
+    ]
+  },
+  {
+    "round_number": 3,
+    "words": [
+      {
+        "base_verb": "INCLUDE",
+        "past_tense": "included",
+        "category": "ID",
+        "japanese_def": "[含む]",
+        "sample_sentence": "The price included breakfast and dinner."
+      },
+      {
+        "base_verb": "CONTINUE",
+        "past_tense": "continued",
+        "category": "D",
+        "japanese_def": "[続ける]",
+        "sample_sentence": "She continued her presentation after the break."
+      },
+      {
+        "base_verb": "CHANGE",
+        "past_tense": "changed",
+        "category": "D",
+        "japanese_def": "[変える]",
+        "sample_sentence": "The weather changed dramatically overnight."
+      },
+      {
+        "base_verb": "WATCH",
+        "past_tense": "watched",
+        "category": "T",
+        "japanese_def": "[見る]",
+        "sample_sentence": "We watched a movie last Saturday."
+      },
+      {
+        "base_verb": "FOLLOW",
+        "past_tense": "followed",
+        "category": "D",
+        "japanese_def": "[従う]",
+        "sample_sentence": "The dog followed the scent into the woods."
+      },
+      {
+        "base_verb": "STOP",
+        "past_tense": "stopped",
+        "category": "T",
+        "japanese_def": "[止める]",
+        "sample_sentence": "The bus stopped right in front of the building."
+      },
+      {
+        "base_verb": "CREATE",
+        "past_tense": "created",
+        "category": "ID",
+        "japanese_def": "[創造する]",
+        "sample_sentence": "She created a beautiful painting for the exhibit."
+      },
+      {
+        "base_verb": "ALLOW",
+        "past_tense": "allowed",
+        "category": "D",
+        "japanese_def": "[許す]",
+        "sample_sentence": "My parents allowed me to go to the party."
+      },
+      {
+        "base_verb": "ADD",
+        "past_tense": "added",
+        "category": "ID",
+        "japanese_def": "[加える]",
+        "sample_sentence": "He added sugar to his coffee."
+      },
+      {
+        "base_verb": "OPEN",
+        "past_tense": "opened",
+        "category": "D",
+        "japanese_def": "[開ける]",
+        "sample_sentence": "The store opened early today."
+      }
+    ]
+  },
+  {
+    "round_number": 4,
+    "words": [
+      {
+        "base_verb": "WALK",
+        "past_tense": "walked",
+        "category": "T",
+        "japanese_def": "[歩く]",
+        "sample_sentence": "I walked to the park this morning."
+      },
+      {
+        "base_verb": "OFFER",
+        "past_tense": "offered",
+        "category": "D",
+        "japanese_def": "[提供する]",
+        "sample_sentence": "She offered him a cup of tea."
+      },
+      {
+        "base_verb": "REMEMBER",
+        "past_tense": "remembered",
+        "category": "D",
+        "japanese_def": "[思い出す]",
+        "sample_sentence": "He remembered the story from his childhood."
+      },
+      {
+        "base_verb": "LOVE",
+        "past_tense": "loved",
+        "category": "D",
+        "japanese_def": "[愛する]",
+        "sample_sentence": "They loved their new home."
+      },
+      {
+        "base_verb": "CONSIDER",
+        "past_tense": "considered",
+        "category": "D",
+        "japanese_def": "[考える]",
+        "sample_sentence": "I considered all the options before deciding."
+      },
+      {
+        "base_verb": "APPEAR",
+        "past_tense": "appeared",
+        "category": "D",
+        "japanese_def": "[現れる]",
+        "sample_sentence": "A small dog suddenly appeared from the bushes."
+      },
+      {
+        "base_verb": "WAIT",
+        "past_tense": "waited",
+        "category": "ID",
+        "japanese_def": "[待つ]",
+        "sample_sentence": "We waited for the train for thirty minutes."
+      },
+      {
+        "base_verb": "SERVE",
+        "past_tense": "served",
+        "category": "D",
+        "japanese_def": "[仕える]",
+        "sample_sentence": "The waiter served the main course immediately."
+      },
+      {
+        "base_verb": "DIE",
+        "past_tense": "died",
+        "category": "D",
+        "japanese_def": "[死ぬ]",
+        "sample_sentence": "The ancient tree died last winter."
+      },
+      {
+        "base_verb": "EXPECT",
+        "past_tense": "expected",
+        "category": "ID",
+        "japanese_def": "[予期する]",
+        "sample_sentence": "We expected rain, but the sun shone brightly."
+      }
+    ]
+  },
+  {
+    "round_number": 5,
+    "words": [
+      {
+        "base_verb": "STAY",
+        "past_tense": "stayed",
+        "category": "D",
+        "japanese_def": "[滞在する]",
+        "sample_sentence": "I stayed home all weekend."
+      },
+      {
+        "base_verb": "REACH",
+        "past_tense": "reached",
+        "category": "T",
+        "japanese_def": "[達する]",
+        "sample_sentence": "We reached the mountain summit by noon."
+      },
+      {
+        "base_verb": "KILL",
+        "past_tense": "killed",
+        "category": "D",
+        "japanese_def": "[殺す]",
+        "sample_sentence": "The spider killed the mosquito instantly."
+      },
+      {
+        "base_verb": "REMAIN",
+        "past_tense": "remained",
+        "category": "D",
+        "japanese_def": "[残る]",
+        "sample_sentence": "The door remained locked all day."
+      },
+      {
+        "base_verb": "SUGGEST",
+        "past_tense": "suggested",
+        "category": "ID",
+        "japanese_def": "[提案する]",
+        "sample_sentence": "She suggested a break after the meeting."
+      },
+      {
+        "base_verb": "RAISE",
+        "past_tense": "raised",
+        "category": "D",
+        "japanese_def": "[上げる]",
+        "sample_sentence": "The government raised the taxes last year."
+      },
+      {
+        "base_verb": "PASS",
+        "past_tense": "passed",
+        "category": "T",
+        "japanese_def": "[通り過ぎる]",
+        "sample_sentence": "A large truck passed us on the highway."
+      },
+      {
+        "base_verb": "REQUIRE",
+        "past_tense": "required",
+        "category": "D",
+        "japanese_def": "[要求する]",
+        "sample_sentence": "The job required a university degree."
+      },
+      {
+        "base_verb": "REPORT",
+        "past_tense": "reported",
+        "category": "ID",
+        "japanese_def": "[報告する]",
+        "sample_sentence": "The journalists reported the news live."
+      },
+      {
+        "base_verb": "DECIDE",
+        "past_tense": "decided",
+        "category": "ID",
+        "japanese_def": "[決定する]",
+        "sample_sentence": "They decided to travel to Italy this summer."
+      }
+    ]
+  },
+  {
+    "round_number": 6,
+    "words": [
+      {
+        "base_verb": "PULL",
+        "past_tense": "pulled",
+        "category": "D",
+        "japanese_def": "[引く]",
+        "sample_sentence": "He pulled the door open carefully."
+      },
+      {
+        "base_verb": "RETURN",
+        "past_tense": "returned",
+        "category": "D",
+        "japanese_def": "[戻る]",
+        "sample_sentence": "I returned the book to the library yesterday."
+      },
+      {
+        "base_verb": "EXPLAIN",
+        "past_tense": "explained",
+        "category": "D",
+        "japanese_def": "[説明する]",
+        "sample_sentence": "She explained the rules of the game clearly."
+      },
+      {
+        "base_verb": "HOPE",
+        "past_tense": "hoped",
+        "category": "T",
+        "japanese_def": "[望む]",
+        "sample_sentence": "I hoped to see you at the concert."
+      },
+      {
+        "base_verb": "DEVELOP",
+        "past_tense": "developed",
+        "category": "T",
+        "japanese_def": "[発展させる]",
+        "sample_sentence": "The company developed a new software application."
+      },
+      {
+        "base_verb": "CARRY",
+        "past_tense": "carried",
+        "category": "D",
+        "japanese_def": "[運ぶ]",
+        "sample_sentence": "He carried his luggage up the stairs."
+      },
+      {
+        "base_verb": "THANK",
+        "past_tense": "thanked",
+        "category": "T",
+        "japanese_def": "[感謝する]",
+        "sample_sentence": "I thanked the chef for the wonderful meal."
+      },
+      {
+        "base_verb": "RECEIVE",
+        "past_tense": "received",
+        "category": "D",
+        "japanese_def": "[受け取る]",
+        "sample_sentence": "We received the package this morning."
+      },
+      {
+        "base_verb": "JOIN",
+        "past_tense": "joined",
+        "category": "D",
+        "japanese_def": "[参加する]",
+        "sample_sentence": "She joined the club immediately after moving."
+      },
+      {
+        "base_verb": "AGREE",
+        "past_tense": "agreed",
+        "category": "D",
+        "japanese_def": "[同意する]",
+        "sample_sentence": "They agreed on the final price."
+      }
+    ]
+  },
+  {
+    "round_number": 7,
+    "words": [
+      {
+        "base_verb": "PICK",
+        "past_tense": "picked",
+        "category": "T",
+        "japanese_def": "[選ぶ]",
+        "sample_sentence": "I picked a blue shirt to wear today."
+      },
+      {
+        "base_verb": "SUPPORT",
+        "past_tense": "supported",
+        "category": "ID",
+        "japanese_def": "[支援する]",
+        "sample_sentence": "The community supported the local school fundraiser."
+      },
+      {
+        "base_verb": "END",
+        "past_tense": "ended",
+        "category": "ID",
+        "japanese_def": "[終わる]",
+        "sample_sentence": "The meeting ended earlier than expected."
+      },
+      {
+        "base_verb": "BASE",
+        "past_tense": "based",
+        "category": "T",
+        "japanese_def": "[基づく]",
+        "sample_sentence": "The movie was based on a true story."
+      },
+      {
+        "base_verb": "PRODUCE",
+        "past_tense": "produced",
+        "category": "T",
+        "japanese_def": "[生産する]",
+        "sample_sentence": "The factory produced fifty cars last month."
+      },
+      {
+        "base_verb": "FACE",
+        "past_tense": "faced",
+        "category": "T",
+        "japanese_def": "[直面する]",
+        "sample_sentence": "We faced many challenges during the trip."
+      },
+      {
+        "base_verb": "COVER",
+        "past_tense": "covered",
+        "category": "D",
+        "japanese_def": "[覆う]",
+        "sample_sentence": "Snow covered the ground overnight."
+      },
+      {
+        "base_verb": "DESCRIBE",
+        "past_tense": "described",
+        "category": "D",
+        "japanese_def": "[説明する]",
+        "sample_sentence": "She described the suspect to the police."
+      },
+      {
+        "base_verb": "CAUSE",
+        "past_tense": "caused",
+        "category": "D",
+        "japanese_def": "[引き起こす]",
+        "sample_sentence": "The storm caused a lot of damage."
+      },
+      {
+        "base_verb": "POINT",
+        "past_tense": "pointed",
+        "category": "ID",
+        "japanese_def": "[指す]",
+        "sample_sentence": "He pointed the way to the nearest exit."
+      }
+    ]
+  },
+  {
+    "round_number": 8,
+    "words": [
+      {
+        "base_verb": "LISTEN",
+        "past_tense": "listened",
+        "category": "D",
+        "japanese_def": "[聞く]",
+        "sample_sentence": "I listened to the radio all morning."
+      },
+      {
+        "base_verb": "REALIZE",
+        "past_tense": "realized",
+        "category": "D",
+        "japanese_def": "[気づく]",
+        "sample_sentence": "I realized my mistake immediately."
+      },
+      {
+        "base_verb": "PLACE",
+        "past_tense": "placed",
+        "category": "T",
+        "japanese_def": "[置く]",
+        "sample_sentence": "She placed the vase on the windowsill."
+      },
+      {
+        "base_verb": "CLOSE",
+        "past_tense": "closed",
+        "category": "D",
+        "japanese_def": "[閉める]",
+        "sample_sentence": "The bank closed early for the holiday."
+      },
+      {
+        "base_verb": "INVOLVE",
+        "past_tense": "involved",
+        "category": "D",
+        "japanese_def": "[巻き込む]",
+        "sample_sentence": "The incident involved three different cars."
+      },
+      {
+        "base_verb": "INCREASE",
+        "past_tense": "increased",
+        "category": "T",
+        "japanese_def": "[増やす]",
+        "sample_sentence": "The company increased its profits by 10%."
+      },
+      {
+        "base_verb": "FILL",
+        "past_tense": "filled",
+        "category": "D",
+        "japanese_def": "[満たす]",
+        "sample_sentence": "He filled the bathtub with warm water."
+      },
+      {
+        "base_verb": "REPRESENT",
+        "past_tense": "represented",
+        "category": "ID",
+        "japanese_def": "[表す]",
+        "sample_sentence": "The symbol represented peace and unity."
+      },
+      {
+        "base_verb": "FOCUS",
+        "past_tense": "focused",
+        "category": "T",
+        "japanese_def": "[集中する]",
+        "sample_sentence": "She focused on her breathing during meditation."
+      },
+      {
+        "base_verb": "DROP",
+        "past_tense": "dropped",
+        "category": "T",
+        "japanese_def": "[落とす]",
+        "sample_sentence": "I accidentally dropped my phone."
+      }
+    ]
+  },
+  {
+    "round_number": 9,
+    "words": [
+      {
+        "base_verb": "PLAN",
+        "past_tense": "planned",
+        "category": "D",
+        "japanese_def": "[計画する]",
+        "sample_sentence": "They planned a big party for next month."
+      },
+      {
+        "base_verb": "PUSH",
+        "past_tense": "pushed",
+        "category": "T",
+        "japanese_def": "[押す]",
+        "sample_sentence": "The child pushed the toy car across the floor."
+      },
+      {
+        "base_verb": "REDUCE",
+        "past_tense": "reduced",
+        "category": "T",
+        "japanese_def": "[減らす]",
+        "sample_sentence": "The store reduced its prices last week."
+      },
+      {
+        "base_verb": "NOTE",
+        "past_tense": "noted",
+        "category": "ID",
+        "japanese_def": "[書き留める]",
+        "sample_sentence": "He noted the main points of the lecture."
+      },
+      {
+        "base_verb": "ENTER",
+        "past_tense": "entered",
+        "category": "D",
+        "japanese_def": "[入る]",
+        "sample_sentence": "We entered the building through the back door."
+      },
+      {
+        "base_verb": "SHARE",
+        "past_tense": "shared",
+        "category": "D",
+        "japanese_def": "[共有する]",
+        "sample_sentence": "They shared their food with the others."
+      },
+      {
+        "base_verb": "SAVE",
+        "past_tense": "saved",
+        "category": "D",
+        "japanese_def": "[救う]",
+        "sample_sentence": "I saved enough money for a new computer."
+      },
+      {
+        "base_verb": "PROTECT",
+        "past_tense": "protected",
+        "category": "ID",
+        "japanese_def": "[保護する]",
+        "sample_sentence": "The shield protected the soldier from harm."
+      },
+      {
+        "base_verb": "OCCUR",
+        "past_tense": "occurred",
+        "category": "D",
+        "japanese_def": "[発生する]",
+        "sample_sentence": "The thought occurred to me later that evening."
+      },
+      {
+        "base_verb": "ACCEPT",
+        "past_tense": "accepted",
+        "category": "ID",
+        "japanese_def": "[受け入れる]",
+        "sample_sentence": "The school accepted her application immediately."
+      }
+    ]
+  },
+  {
+    "round_number": 10,
+    "words": [
+      {
+        "base_verb": "DETERMINE",
+        "past_tense": "determined",
+        "category": "D",
+        "japanese_def": "[決定する]",
+        "sample_sentence": "The investigation determined the cause of the fire."
+      },
+      {
+        "base_verb": "PREPARE",
+        "past_tense": "prepared",
+        "category": "D",
+        "japanese_def": "[準備する]",
+        "sample_sentence": "We prepared dinner for the entire family."
+      },
+      {
+        "base_verb": "ARGUE",
+        "past_tense": "argued",
+        "category": "D",
+        "japanese_def": "[議論する]",
+        "sample_sentence": "They argued about the correct way to load the dishwasher."
+      },
+      {
+        "base_verb": "RECOGNIZE",
+        "past_tense": "recognized",
+        "category": "D",
+        "japanese_def": "[認識する]",
+        "sample_sentence": "I recognized her voice instantly."
+      },
+      {
+        "base_verb": "INDICATE",
+        "past_tense": "indicated",
+        "category": "ID",
+        "japanese_def": "[示す]",
+        "sample_sentence": "The sign indicated the road was closed."
+      },
+      {
+        "base_verb": "WONDER",
+        "past_tense": "wondered",
+        "category": "D",
+        "japanese_def": "[不思議に思う]",
+        "sample_sentence": "She wondered where her keys had gone."
+      },
+      {
+        "base_verb": "FAIL",
+        "past_tense": "failed",
+        "category": "D",
+        "japanese_def": "[失敗する]",
+        "sample_sentence": "The experiment failed to produce the expected results."
+      },
+      {
+        "base_verb": "ARRIVE",
+        "past_tense": "arrived",
+        "category": "D",
+        "japanese_def": "[到着する]",
+        "sample_sentence": "The guests arrived exactly on time."
+      },
+      {
+        "base_verb": "COOK",
+        "past_tense": "cooked",
+        "category": "T",
+        "japanese_def": "[料理する]",
+        "sample_sentence": "We cooked dinner together last night."
+      },
+      {
+        "base_verb": "IDENTIFY",
+        "past_tense": "identified",
+        "category": "D",
+        "japanese_def": "[特定する]",
+        "sample_sentence": "The police identified the suspect quickly."
+      }
+    ]
+  },
+  {
+    "round_number": 11,
+    "words": [
+      {
+        "base_verb": "BRUSH",
+        "past_tense": "brushed",
+        "category": "T",
+        "japanese_def": "[磨く]",
+        "sample_sentence": "She brushed her teeth before going to bed."
+      },
+      {
+        "base_verb": "LAUGH",
+        "past_tense": "laughed",
+        "category": "T",
+        "japanese_def": "[笑う]",
+        "sample_sentence": "We laughed loudly at the funny movie."
+      },
+      {
+        "base_verb": "PRINT",
+        "past_tense": "printed",
+        "category": "ID",
+        "japanese_def": "[印刷する]",
+        "sample_sentence": "I printed the document and signed it."
+      },
+      {
+        "base_verb": "VISIT",
+        "past_tense": "visited",
+        "category": "ID",
+        "japanese_def": "[訪れる]",
+        "sample_sentence": "They visited their grandparents last week."
+      },
+      {
+        "base_verb": "LEARN",
+        "past_tense": "learned",
+        "category": "D",
+        "japanese_def": "[学ぶ]",
+        "sample_sentence": "She learned to ride a bike when she was five."
+      },
+      {
+        "base_verb": "BELONG",
+        "past_tense": "belonged",
+        "category": "D",
+        "japanese_def": "[所属する]",
+        "sample_sentence": "The old toy belonged to my older brother."
+      },
+      {
+        "base_verb": "SOLVE",
+        "past_tense": "solved",
+        "category": "D",
+        "japanese_def": "[解決する]",
+        "sample_sentence": "The detective solved the mystery quickly."
+      },
+      {
+        "base_verb": "MEASURE",
+        "past_tense": "measured",
+        "category": "D",
+        "japanese_def": "[測定する]",
+        "sample_sentence": "He measured the height of the wall."
+      },
+      {
+        "base_verb": "TALK",
+        "past_tense": "talked",
+        "category": "T",
+        "japanese_def": "[話す]",
+        "sample_sentence": "We talked for hours about the movie."
+      },
+      {
+        "base_verb": "WALK",
+        "past_tense": "walked",
+        "category": "T",
+        "japanese_def": "[歩く]",
+        "sample_sentence": "I walked to the park this morning."
+      }
+    ]
+  }
+];
+
+// =======================================================================
+// PART 2: GAME LOGIC (The "Engine")
+// =======================================================================
+
+let currentRoundIndex = 0;
+let currentWordIndex = 0;
+let totalScore = 0;
+let roundScore = 0;
+let currentWord = {};
+
+const synth = window.speechSynthesis;
+const voice = synth.getVoices().find(v => v.lang.startsWith('en-') && v.name.includes('Google')); // Tries to get a good English voice
+
+// Utility function for dynamic Text-to-Speech
+function speakText(text) {
+    if (synth.speaking) {
+        synth.cancel();
+    }
+    const utterThis = new SpeechSynthesisUtterance(text);
+    if (voice) {
+        utterThis.voice = voice; // Use preferred voice if found
+    }
+    utterThis.rate = 0.9; // Slightly slower speech for clarity
+    synth.speak(utterThis);
+}
+
+// Function to reset display and load the next word
+function loadWord() {
+    const roundData = GAME_DATA[currentRoundIndex];
+    if (currentWordIndex >= roundData.words.length) {
+        showRoundSummary();
+        return;
+    }
+
+    currentWord = roundData.words[currentWordIndex];
+    roundScore = 0; // Reset for the start of the round
+
+    // Update headers and displays
+    document.getElementById('round-header').textContent = `Round ${roundData.round_number}: Word ${currentWordIndex + 1} / 10`;
+    document.getElementById('base-verb-display').textContent = currentWord.base_verb;
+    document.getElementById('translation').textContent = currentWord.japanese_def;
+    document.getElementById('question-text').textContent = 'Click the verb to hear it. What is its past tense?';
+    document.getElementById('total-score-display').textContent = totalScore;
+    
+    // Hide past tense reveal and buttons
+    document.getElementById('past-tense-container').classList.add('hidden');
+    document.getElementById('reveal-button').classList.remove('hidden');
+    document.getElementById('reward-visual').textContent = ''; // Clear reward
+
+    // Automatically speak the base verb on load
+    speakText(currentWord.base_verb);
+}
+
+// Function to reveal the past tense and prompt for feedback
+function revealPastTense() {
+    document.getElementById('reveal-button').classList.add('hidden');
+    document.getElementById('question-text').textContent = 'The past tense is:';
+    
+    const ptDisplay = document.getElementById('past-tense-display');
+    ptDisplay.textContent = currentWord.past_tense;
+    
+    document.getElementById('past-tense-container').classList.remove('hidden');
+
+    // Speak the correct past tense
+    speakText(currentWord.past_tense);
+}
+
+// Function to handle the user's "Yes/No/Not Sure" feedback
+function submitFeedback(points) {
+    const rewardVisual = document.getElementById('reward-visual');
+    let message = '';
+
+    if (points === 1) {
+        totalScore += 1;
+        roundScore += 1;
+        message = 'YES! That was perfect. 🥳';
+        rewardVisual.textContent = '✨'; // Simple sparkle reward
+    } else if (points === 0.5) {
+        totalScore += 0.5;
+        roundScore += 0.5;
+        message = 'Okay, getting closer! Half a coin. 🤔';
+        rewardVisual.textContent = '🪙/2';
+    } else {
+        message = 'It\'s okay! Listen to the correct pronunciation again.';
+        rewardVisual.textContent = '❌';
+    }
+
+    // Temporarily show feedback message and reward
+    document.getElementById('question-text').textContent = message;
+
+    // Disable buttons temporarily
+    document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = true);
+
+    // Wait 1 second before loading the next word
+    setTimeout(() => {
+        document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = false);
+        currentWordIndex++;
+        loadWord();
+    }, 1500);
+}
+
+// Function to display the round summary
+function showRoundSummary() {
+    document.getElementById('current-word-view').classList.add('hidden');
+    document.getElementById('round-summary-view').classList.remove('hidden');
+
+    const roundData = GAME_DATA[currentRoundIndex];
+    document.getElementById('summary-round-number').textContent = roundData.round_number;
+    document.getElementById('round-score-display').textContent = roundScore;
+
+    const summaryList = document.getElementById('round-summary');
+    summaryList.innerHTML = ''; // Clear previous summary
+
+    roundData.words.forEach(word => {
+        const item = document.createElement('div');
+        item.className = 'summary-item';
+        item.innerHTML = `
+            <strong>${word.base_verb} &rarr; ${word.past_tense}</strong>:
+            ${word.sample_sentence}
+        `;
+        summaryList.appendChild(item);
+    });
+
+    // Update total score
+    document.getElementById('total-score-display').textContent = totalScore;
+}
+
+// Function to start the next round
+function startNextRound() {
+    currentRoundIndex++;
+    if (currentRoundIndex >= GAME_DATA.length) {
+        alert(`GAME OVER! You finished all ${GAME_DATA.length} rounds! Final Score: ${totalScore} 🥇`);
+        // Optional: Reset game or show final screen
+        return;
+    }
+
+    currentWordIndex = 0;
+    document.getElementById('round-summary-view').classList.add('hidden');
+    document.getElementById('current-word-view').classList.remove('hidden');
+    
+    // Ensure scores are reset for the new round
+    roundScore = 0; 
+    loadWord();
+}
+
+// Start the game when the page loads
+window.onload = function() {
+    // Ensure voices are loaded before starting
+    if (synth.getVoices().length === 0) {
+        synth.onvoiceschanged = loadWord;
+    } else {
+        loadWord();
+    }
+};
+
+</script>
+</body>
+</html>
