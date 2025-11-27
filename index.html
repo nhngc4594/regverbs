@@ -17,12 +17,9 @@
             text-align: center;
         }
         #game-container {
-            /* Changed to match body background or be transparent */
             background-color: #fce4ec; /* Match body background */
             padding: 30px;
             border-radius: 12px;
-            /* Removed box-shadow to blend better */
-            /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */ 
             width: 90%;
             max-width: 600px;
         }
@@ -123,8 +120,9 @@
         #instructions-view ul {
             list-style: none;
             padding-left: 0;
-            max-width: 450px; /* Constrain width for better readability */
-            margin: 0 auto 20px auto; /* Center list */
+            max-width: 450px; 
+            margin: 0 auto 20px auto; 
+            text-align: left; /* Keep list items left-aligned for readability */
         }
         #instructions-view li {
             margin-bottom: 10px;
@@ -134,13 +132,21 @@
             color: #e91e63;
         }
         .instruction-section {
-            margin-bottom: 25px; /* Space between English and Japanese instructions */
+            margin-bottom: 25px; 
+            text-align: center; /* Center the entire section block */
         }
         .instruction-title {
             font-weight: bold;
             color: #e91e63; /* Pink for titles */
             margin-bottom: 10px;
             font-size: 1.1em;
+            text-align: center;
+        }
+        /* Ensure the button is centered via flex on the container */
+        #instructions-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
@@ -149,6 +155,7 @@
 <div id="game-container">
     <div id="instructions-view">
         <h2 style="color: #e91e63;">How to Play</h2>
+        
         <div class="instruction-section">
             <div class="instruction-title">English Instructions:</div>
             <p>This game tests your intuition for the correct pronunciation for simple past tense verbs.</p>
@@ -857,4 +864,365 @@ const GAME_DATA = [
         "sample_sentence": "We entered the building through the back door."
       },
       {
-        "base_verb":
+        "base_verb": "SHARE",
+        "past_tense": "shared",
+        "category": "D",
+        "japanese_def": "[共有する]",
+        "sample_sentence": "They shared their food with the others."
+      },
+      {
+        "base_verb": "SAVE",
+        "past_tense": "saved",
+        "category": "D",
+        "japanese_def": "[救う]",
+        "sample_sentence": "I saved enough money for a new computer."
+      },
+      {
+        "base_verb": "PROTECT",
+        "past_tense": "protected",
+        "category": "ID",
+        "japanese_def": "[保護する]",
+        "sample_sentence": "The shield protected the soldier from harm."
+      },
+      {
+        "base_verb": "OCCUR",
+        "past_tense": "occurred",
+        "category": "D",
+        "japanese_def": "[発生する]",
+        "sample_sentence": "The thought occurred to me later that evening."
+      },
+      {
+        "base_verb": "ACCEPT",
+        "past_tense": "accepted",
+        "category": "ID",
+        "japanese_def": "[受け入れる]",
+        "sample_sentence": "The school accepted her application immediately."
+      }
+    ]
+  },
+  {
+    "round_number": 10,
+    "words": [
+      {
+        "base_verb": "DETERMINE",
+        "past_tense": "determined",
+        "category": "D",
+        "japanese_def": "[決定する]",
+        "sample_sentence": "The investigation determined the cause of the fire."
+      },
+      {
+        "base_verb": "PREPARE",
+        "past_tense": "prepared",
+        "category": "D",
+        "japanese_def": "[準備する]",
+        "sample_sentence": "We prepared dinner for the entire family."
+      },
+      {
+        "base_verb": "ARGUE",
+        "past_tense": "argued",
+        "category": "D",
+        "japanese_def": "[議論する]",
+        "sample_sentence": "They argued about the correct way to load the dishwasher."
+      },
+      {
+        "base_verb": "RECOGNIZE",
+        "past_tense": "recognized",
+        "category": "D",
+        "japanese_def": "[認識する]",
+        "sample_sentence": "I recognized her voice instantly."
+      },
+      {
+        "base_verb": "INDICATE",
+        "past_tense": "indicated",
+        "category": "ID",
+        "japanese_def": "[示す]",
+        "sample_sentence": "The sign indicated the road was closed."
+      },
+      {
+        "base_verb": "WONDER",
+        "past_tense": "wondered",
+        "category": "D",
+        "japanese_def": "[不思議に思う]",
+        "sample_sentence": "She wondered where her keys had gone."
+      },
+      {
+        "base_verb": "FAIL",
+        "past_tense": "failed",
+        "category": "D",
+        "japanese_def": "[失敗する]",
+        "sample_sentence": "The experiment failed to produce the expected results."
+      },
+      {
+        "base_verb": "ARRIVE",
+        "past_tense": "arrived",
+        "category": "D",
+        "japanese_def": "[到着する]",
+        "sample_sentence": "The guests arrived exactly on time."
+      },
+      {
+        "base_verb": "COOK",
+        "past_tense": "cooked",
+        "category": "T",
+        "japanese_def": "[料理する]",
+        "sample_sentence": "We cooked dinner together last night."
+      },
+      {
+        "base_verb": "IDENTIFY",
+        "past_tense": "identified",
+        "category": "D",
+        "japanese_def": "[特定する]",
+        "sample_sentence": "The police identified the suspect quickly."
+      }
+    ]
+  },
+  {
+    "round_number": 11,
+    "words": [
+      {
+        "base_verb": "BRUSH",
+        "past_tense": "brushed",
+        "category": "T",
+        "japanese_def": "[磨く]",
+        "sample_sentence": "She brushed her teeth before going to bed."
+      },
+      {
+        "base_verb": "LAUGH",
+        "past_tense": "laughed",
+        "category": "T",
+        "japanese_def": "[笑う]",
+        "sample_sentence": "We laughed loudly at the funny movie."
+      },
+      {
+        "base_verb": "PRINT",
+        "past_tense": "printed",
+        "category": "ID",
+        "japanese_def": "[印刷する]",
+        "sample_sentence": "I printed the document and signed it."
+      },
+      {
+        "base_verb": "VISIT",
+        "past_tense": "visited",
+        "category": "ID",
+        "japanese_def": "[訪れる]",
+        "sample_sentence": "They visited their grandparents last week."
+      },
+      {
+        "base_verb": "LEARN",
+        "past_tense": "learned",
+        "category": "D",
+        "japanese_def": "[学ぶ]",
+        "sample_sentence": "She learned to ride a bike when she was five."
+      },
+      {
+        "base_verb": "BELONG",
+        "past_tense": "belonged",
+        "category": "D",
+        "japanese_def": "[所属する]",
+        "sample_sentence": "The old toy belonged to my older brother."
+      },
+      {
+        "base_verb": "SOLVE",
+        "past_tense": "solved",
+        "category": "D",
+        "japanese_def": "[解決する]",
+        "sample_sentence": "The detective solved the mystery quickly."
+      },
+      {
+        "base_verb": "MEASURE",
+        "past_tense": "measured",
+        "category": "D",
+        "japanese_def": "[測定する]",
+        "sample_sentence": "He measured the height of the wall."
+      },
+      {
+        "base_verb": "TALK",
+        "past_tense": "talked",
+        "category": "T",
+        "japanese_def": "[話す]",
+        "sample_sentence": "We talked for hours about the movie."
+      },
+      {
+        "base_verb": "WALK",
+        "past_tense": "walked",
+        "category": "T",
+        "japanese_def": "[歩く]",
+        "sample_sentence": "I walked to the park this morning."
+      }
+    ]
+  }
+];
+
+// =======================================================================
+// PART 2: GAME LOGIC (The "Engine")
+// =======================================================================
+
+let currentRoundIndex = 0;
+let currentWordIndex = 0;
+let totalScore = 0;
+let roundScore = 0;
+let currentWord = {};
+
+const synth = window.speechSynthesis;
+let voice = null; 
+
+// Utility function for dynamic Text-to-Speech
+function speakText(text) {
+    if (synth.speaking) {
+        synth.cancel();
+    }
+    const utterThis = new SpeechSynthesisUtterance(text);
+    
+    if (voice) {
+        utterThis.voice = voice;
+    }
+    
+    utterThis.lang = 'en-US'; 
+    utterThis.rate = 0.9; 
+    synth.speak(utterThis);
+}
+
+// Function to find the American English voice
+function findAmericanVoice() {
+    const voices = synth.getVoices();
+    voice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+            voices.find(v => v.lang === 'en-US');
+}
+
+// Function to hide instructions and start the game
+function startGame() {
+    document.getElementById('instructions-view').classList.add('hidden');
+    document.getElementById('current-word-view').classList.remove('hidden');
+    loadWord();
+}
+
+// Function to reset display and load the next word
+function loadWord() {
+    const roundData = GAME_DATA[currentRoundIndex];
+    if (currentWordIndex >= roundData.words.length) {
+        showRoundSummary();
+        return;
+    }
+
+    currentWord = roundData.words[currentWordIndex];
+
+    // Update headers and displays
+    document.getElementById('round-header').textContent = `Round ${roundData.round_number}: Word ${currentWordIndex + 1} / 10`;
+    document.getElementById('base-verb-display').textContent = currentWord.base_verb;
+    document.getElementById('translation').textContent = currentWord.japanese_def;
+    document.getElementById('question-text').textContent = 'Click the verb to hear it. What is its past tense?';
+    document.getElementById('total-score-display').textContent = totalScore;
+    
+    // Hide past tense reveal and buttons
+    document.getElementById('past-tense-container').classList.add('hidden');
+    document.getElementById('reveal-button').classList.remove('hidden');
+    document.getElementById('reward-visual').textContent = ''; 
+
+    // Automatically speak the base verb on load
+    speakText(currentWord.base_verb);
+}
+
+// Function to reveal the past tense and prompt for feedback
+function revealPastTense() {
+    document.getElementById('reveal-button').classList.add('hidden');
+    document.getElementById('question-text').textContent = 'The past tense is:';
+    
+    const ptDisplay = document.getElementById('past-tense-display');
+    ptDisplay.textContent = currentWord.past_tense;
+    
+    document.getElementById('past-tense-container').classList.remove('hidden');
+
+    // Speak the correct past tense
+    speakText(currentWord.past_tense);
+}
+
+// Function to handle the user's "Yes/No/Not Sure" feedback
+function submitFeedback(points) {
+    const rewardVisual = document.getElementById('reward-visual');
+    let message = '';
+
+    if (points === 1) {
+        totalScore += 1;
+        roundScore += 1;
+        message = 'YES! That was perfect. 🥳';
+        rewardVisual.textContent = '✨'; 
+    } else if (points === 0.5) {
+        totalScore += 0.5;
+        roundScore += 0.5;
+        message = 'Okay, getting closer! Half a coin. 🤔';
+        rewardVisual.textContent = '🪙/2';
+    } else {
+        message = 'It\'s okay! Listen to the correct pronunciation again.';
+        rewardVisual.textContent = '❌';
+    }
+
+    // Temporarily show feedback message and reward
+    document.getElementById('question-text').textContent = message;
+
+    // Disable buttons temporarily
+    document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = true);
+
+    // Wait 1.5 seconds before loading the next word
+    setTimeout(() => {
+        document.querySelectorAll('#feedback-buttons button').forEach(btn => btn.disabled = false);
+        currentWordIndex++;
+        loadWord();
+    }, 1500);
+}
+
+// Function to display the round summary
+function showRoundSummary() {
+    document.getElementById('current-word-view').classList.add('hidden');
+    document.getElementById('round-summary-view').classList.remove('hidden');
+
+    const roundData = GAME_DATA[currentRoundIndex];
+    document.getElementById('summary-round-number').textContent = roundData.round_number;
+    document.getElementById('round-score-display').textContent = roundScore;
+
+    const summaryList = document.getElementById('round-summary');
+    summaryList.innerHTML = ''; 
+
+    roundData.words.forEach(word => {
+        const item = document.createElement('div');
+        item.className = 'summary-item';
+        item.innerHTML = `
+            <strong>${word.base_verb} &rarr; ${word.past_tense}</strong>:
+            ${word.sample_sentence}
+        `;
+        summaryList.appendChild(item);
+    });
+
+    // Update total score
+    document.getElementById('total-score-display').textContent = totalScore;
+}
+
+// Function to start the next round
+function startNextRound() {
+    currentRoundIndex++;
+    if (currentRoundIndex >= GAME_DATA.length) {
+        alert(`GAME OVER! You finished all ${GAME_DATA.length} rounds! Final Score: ${totalScore} 🥇`);
+        // Optional: Implement a final score screen or reset here.
+        return;
+    }
+
+    currentWordIndex = 0;
+    roundScore = 0; 
+    document.getElementById('round-summary-view').classList.add('hidden');
+    document.getElementById('current-word-view').classList.remove('hidden');
+    
+    loadWord();
+}
+
+// Start the game by loading the instructions screen first
+window.onload = function() {
+    // 1. Load voices when the page loads
+    if (synth.getVoices().length === 0) {
+        synth.onvoiceschanged = findAmericanVoice;
+    } else {
+        findAmericanVoice();
+    }
+    // 2. Show the instruction screen. The game logic starts when the user clicks "Start Game".
+};
+
+</script>
+</body>
+</html>
