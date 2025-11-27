@@ -12,7 +12,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            /* Sea Foam Pink Background */
+            /* Sea Foam Pink Background (Keeping the background as requested previously) */
             background-color: #fce4ec; 
             margin: 0;
             text-align: center;
@@ -32,11 +32,10 @@
         .verb-display {
             font-size: 2.5em;
             font-weight: bold;
-            /* Main Pink Color */
+            /* Main Pink Color (for the verb display) */
             color: #e91e63;
             cursor: pointer;
             padding: 10px 20px;
-            /* Pink Border */
             border: 2px solid #e91e63;
             border-radius: 8px;
             display: inline-block;
@@ -59,7 +58,6 @@
         .past-tense-reveal {
             font-size: 2em;
             font-weight: bold;
-            /* Green Accent (for correct answer) */
             color: #4caf50; 
             cursor: pointer;
             padding: 5px 10px;
@@ -72,8 +70,8 @@
             opacity: 0.8;
         }
         .button-group button {
-            /* Button Color */
-            background-color: #f48fb1; 
+            /* Sea Foam Green Button Color */
+            background-color: #4caf50; 
             color: white;
             border: none;
             padding: 12px 25px;
@@ -84,8 +82,20 @@
             transition: background-color 0.2s;
         }
         .button-group button:hover {
-            background-color: #e91e63;
+            background-color: #388e3c;
         }
+        /* Style for the main action buttons */
+        #reveal-button, #start-game-button {
+            background-color: #4caf50 !important;
+            padding: 15px 40px !important;
+            font-size: 1.2em !important;
+            font-weight: bold;
+            min-width: 250px;
+        }
+        #round-summary-view button {
+             background-color: #4caf50 !important;
+        }
+        
         .score-box {
             margin-top: 20px;
             font-size: 1.2em;
@@ -95,7 +105,7 @@
             margin-top: 20px;
             text-align: left;
             padding: 15px;
-            background-color: #f8bbd0; /* Lighter pink for summary box */
+            background-color: #f8bbd0; 
             border-radius: 8px;
         }
         .summary-item {
@@ -110,8 +120,12 @@
             text-align: left;
         }
         #instructions-view ul {
-            list-style: disc;
-            padding-left: 20px;
+            list-style: none;
+            padding-left: 0;
+        }
+        #instructions-view li {
+            margin-bottom: 10px;
+            line-height: 1.4;
         }
         #instructions-view h3 {
             color: #e91e63;
@@ -122,17 +136,17 @@
 
 <div id="game-container">
     <div id="instructions-view">
-        <h2 style="color: #e91e63;">How to Play: Regular Verbs</h2>
-        <p>This game tests your intuition for the correct pronunciation of the simple past tense ($\text{-ed}$) sound in English.</p>
-        <p style="font-weight: bold;">**10 rounds of 10 words each.**</p>
+        <h2 style="color: #e91e63;">How to Play | 遊び方</h2>
+        <p>This game tests your intuition for the correct pronunciation for simple past tense verbs.</p>
+        <p style="font-weight: bold;">10 rounds of 10 words each. | 1ラウンド10単語、全10ラウンドです。</p>
         <ul>
-            <li>**Step 1:** The **BASE VERB** is displayed (e.g., WANT). Click the word to hear its pronunciation.</li>
-            <li>**Step 2:** Think about how the past tense (**WANTED**) is pronounced.</li>
-            <li>**Step 3:** Click **"Reveal Past Tense"**. The correct past tense is shown and read aloud.</li>
-            <li>**Step 4:** Answer **Yes**, **No**, or **Not Sure** to score points ($\text{1.0}$, $\text{0.0}$, or $\text{0.5}$).</li>
-            <li>**End of Round:** See your score ($\text{🪙}$ coins) and sample sentences for all 10 words.</li>
+            <li>**Step 1 | ステップ1:** Click the word to hear its pronunciation. | 単語をクリックして発音を聞きます。</li>
+            <li>**Step 2 | ステップ2:** Think about how the past tense is pronounced. | 過去形の発音を考えます。</li>
+            <li>**Step 3 | ステップ3:** Click "**Past Tense**". | 「Past Tense」をクリックします。</li>
+            <li>**Step 4 | ステップ4:** Answer Yes, No, or Not Sure to score points. | 「Yes, No, Not Sure」で回答し、スコアを獲得します。</li>
+            <li>**End of Round | ラウンド終了:** See your score and sample sentences for all 10 words. | スコアと10単語全ての例文を確認します。</li>
         </ul>
-        <button onclick="startGame()" style="background-color: #e91e63;">Start Game</button>
+        <button id="start-game-button" onclick="startGame()">Start Game</button>
     </div>
 
     <div id="current-word-view" class="hidden">
@@ -142,7 +156,7 @@
         <div id="base-verb-display" class="verb-display" onclick="speakText(currentWord.base_verb)">BASE VERB</div>
         <div id="question-text">Click the verb to hear it. What is its past tense?</div>
         
-        <button id="reveal-button" onclick="revealPastTense()">Reveal Past Tense</button>
+        <button id="reveal-button" onclick="revealPastTense()">Past Tense</button>
         <div id="past-tense-container" class="hidden">
             <div id="past-tense-display" class="past-tense-reveal" onclick="speakText(currentWord.past_tense)"></div>
             <p style="margin-top: 20px; color: #333;">Is this what you thought?</p>
@@ -161,7 +175,7 @@
         </div>
         <h4>Sample Sentences:</h4>
         <div id="round-summary"></div>
-        <button onclick="startNextRound()" style="background-color: #e91e63;">Start Next Round</button>
+        <button onclick="startNextRound()">Start Next Round</button>
     </div>
 
     <div class="score-box">
@@ -1058,7 +1072,6 @@ function loadWord() {
     }
 
     currentWord = roundData.words[currentWordIndex];
-    // NOTE: roundScore is intentionally NOT reset here. It's reset when the new round starts.
 
     // Update headers and displays
     document.getElementById('round-header').textContent = `Round ${roundData.round_number}: Word ${currentWordIndex + 1} / 10`;
