@@ -1198,14 +1198,37 @@ function showRoundSummary() {
 // Function to start the next round
 function startNextRound() {
     currentRoundIndex++;
+    
+    // --- REWARD GRAPHIC UPDATE (replaces old alert logic) ---
     if (currentRoundIndex >= GAME_DATA.length) {
-        alert(`GAME OVER! You finished all ${GAME_DATA.length} rounds! Final Score: ${totalScore} 🥇`);
-        // Optional: Implement a final score screen or reset here.
+        document.getElementById('current-word-view').classList.add('hidden');
+        document.getElementById('round-summary-view').classList.add('hidden');
+
+        // Display the final reward screen within the instructions-view container
+        document.getElementById('instructions-view').innerHTML = `
+            <h2 style="color: #4caf50;">Regular Verb Expert! ⭐</h2>
+            <div style="font-size: 80px; margin: 20px 0;">
+                <span role="img" aria-label="Star Trophy">🌟</span>
+            </div>
+            <p style="font-size: 1.5em; font-weight: bold; color: #e91e63;">Superb! You have mastered all ${GAME_DATA.length * 10} regular past tense forms!</p>
+            <div class="score-box" style="font-size: 2em; margin-top: 30px; padding: 15px; border: 3px solid #4caf50; border-radius: 10px;">
+                Final Score: <span id="final-score-display">${totalScore.toFixed(1)}</span> 🥇
+            </div>
+            <p style="margin-top: 25px; color: #555;">Congratulations! Ready for a new challenge?</p>
+            
+            <a href="index.html" style="text-decoration: none;">
+                <button style="margin-top: 20px;">Return to Main Menu</button>
+            </a>
+        `;
+        
+        document.getElementById('instructions-view').classList.remove('hidden');
+        document.getElementById('total-score-display').textContent = totalScore.toFixed(1); // Update the final score display below the container
         return;
     }
+    // --- END OF REWARD GRAPHIC UPDATE ---
 
     currentWordIndex = 0;
-    roundScore = 0; 
+    roundScore = 0;
     document.getElementById('round-summary-view').classList.add('hidden');
     document.getElementById('current-word-view').classList.remove('hidden');
     
